@@ -454,7 +454,7 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type):
     result.append(f"{t}\n")
     result.append("\\end{verbatim}}\n")
     result.append("{\\normalsize")
-    result.append("\\begin{center}")
+    result.append("\\begin{flushleft}")
     result.append("\\begin{tabular}")
     result.append("{|m{2cm}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|m{9.675pt}|}")
     result.append("\\hline")
@@ -463,7 +463,7 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type):
     result.append("Replacement&&&&&&&&&&&&&&&&&&&&&&&&&&\\\\")
     result.append("\\hline")
     result.append("\\end{tabular}")
-    result.append("\\end{center}}")
+    result.append("\\end{flushleft}}")
     result.append("\\vfill")
     result.append("\\uplevel{\\hrulefill}")
     
