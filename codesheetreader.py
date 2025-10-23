@@ -1317,6 +1317,7 @@ def checkerboarddecode(s, hkey, vkey, pk, bs, value):
     hkey = hkey.upper().replace("J","I")
     vkey = vkey.upper().replace("J","I")
     s = s.upper().replace("J","I")
+    s = re.sub(r'[^a-zA-Z]', '', s).upper()
     pkf = pk.upper().replace("J","I")
     alph = checkerboard_alphabet(pk)
     v = checkerboard_encoder(hkey,vkey,alph,s,bs)
