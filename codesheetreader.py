@@ -55,9 +55,9 @@ def aristo_format_sentence(s):
             lines +=1
         else:
             current_line += word + " "
-            total_length += len(word) + 1
-    
+            total_length += len(word) + 1    
     formatted_string += current_line.rstrip()
+    formatted_string += formatted_string + "\n"
     return formatted_string
 
 def pat_format_sentence(s):
@@ -84,6 +84,7 @@ def pat_format_sentence(s):
             total_length += len(word) + 1
     
     formatted_string += current_line.rstrip()
+    formatted_string += formatted_string + "\n"
     return formatted_string
 
 def aristo_frequency_table(ct, alph):
@@ -160,7 +161,10 @@ def monoalph_creator(s, value, type, hint_type, hint, alph="", keyword="", shift
     if alph != "":
         alph += " "
     
-    v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + type + "}"
+    if not extract:
+        v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + type + "}"
+    else:
+        v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet. "
     if hint_type == "None":
         v += ".\n"
     elif hint_type == "Word" or hint_type == "Letters":
@@ -1163,8 +1167,11 @@ def xeno_creator(s, value, type, hint_type, hint, alph="", keyword="", shift="",
     table = xeno_frequency_table(replaced_string, alph)
     if alph != "":
         alph += " "
-    v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + "Xenocrypt}"
-    if hint_type == "None":
+    if not extract:
+        v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + "Xenocrypt}"
+    else:
+        v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{Xenocrypt} with a " + alph + " alphabet. "
+    if hint_type == "None" or hint_type == None:
         v += ".\n"
     elif hint_type == "Word" or hint_type == "Letters":
         v+= ". You are told that " + hint + ".\n"
