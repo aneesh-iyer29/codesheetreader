@@ -84,7 +84,7 @@ def pat_format_sentence(s):
             total_length += len(word) + 1
     
     formatted_string += current_line.rstrip()
-    formatted_string += formatted_string + "\n"
+    formatted_string += "\n"
     return formatted_string
 
 def aristo_frequency_table(ct, alph):
