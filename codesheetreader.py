@@ -1391,6 +1391,10 @@ def write_file(result, output_file):
                 f.write(item + '\n')
 
 def main():
+    # Create tests directory if it doesn't exist
+    tests_dir = "tests"
+    os.makedirs(tests_dir, exist_ok=True)
+    
     output_file = input("Enter the output file name (without extension, it will be .txt): ")
     key_file = input("Enter the name of the file for the key (must be differnet or errors will happen)")
     input_sheet = input("Enter the name of the .xlsx sheet that contains the quotes (include the .xlsx at the end): ")
@@ -1399,6 +1403,10 @@ def main():
         output_file += '.txt'
     if not key_file.endswith('.txt'):
         key_file += '.txt'
+    
+    # Prepend tests directory to file paths
+    output_file = os.path.join(tests_dir, output_file)
+    key_file = os.path.join(tests_dir, key_file)
     
     if not os.path.exists(output_file):
         with open(output_file, 'w') as f:
