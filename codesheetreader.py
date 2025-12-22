@@ -1,3 +1,4 @@
+from tokenize import String
 import pandas as pd
 import random
 import math
@@ -303,14 +304,17 @@ def baconLetterEncoder(s, a, b, lw, type):
             lines +=1
     return spaced
 
-def baconianLetters(s, a, b, lw, value, type, hint_type, hint):
+def baconianLetters(s, a, b, lw, value, type, hint_type, hint, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
     t = baconLetterEncoder(s, a, b, lw, type)
     result = []
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if hint_type == "Letters":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that {hint}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that {hint}.{bonus_text}")
     else:
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher.")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{t}\n")
@@ -445,14 +449,17 @@ def words_format_sentence(s):
     formatted_string += current_line.rstrip()
     return formatted_string
 
-def baconianWordsFormatter(s, alph, crib, value, hint_type):
+def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s)
     t = words(s,alph)
     result = []
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if hint_type == "Start Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that the plaintext starts with {crib}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that the plaintext starts with {crib}.{bonus_text}")
     if hint_type == "End Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that the plaintext ends with {crib}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that the plaintext ends with {crib}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{t}\n")
@@ -513,12 +520,15 @@ def caesar_format_sentence(s):
     formatted_string += current_line.rstrip()
     return formatted_string
 
-def caesar_formatter(s, shift, value):
+def caesar_formatter(s, shift, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s)
     encoded_text = caesar_encoder(s, shift, 5)
     formatted_string = caesar_format_sentence(encoded_text)
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     result = []
-    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Caesar}} cipher.")
+    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Caesar}} cipher.{bonus_text}")
     result.append("\n\\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{formatted_string}\n")
@@ -576,7 +586,7 @@ def encryptColumnarMessage(msg, key):
 
     return cipher
 
-def columnarFormatter(s, columns, crib, value):
+def columnarFormatter(s, columns, crib, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s)
     key = ""
     for i in range(columns):
@@ -606,9 +616,12 @@ def columnarFormatter(s, columns, crib, value):
             total_length += len(word) + 1
     formatted_string += current_line.rstrip()
     spaced = formatted_string
-        
+    
     result = []
-    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Complete Columnar}} cipher. You are told that the plaintext contains \\textbf{{{crib.upper()}}}.")
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Complete Columnar}} cipher. You are told that the plaintext contains \\textbf{{{crib.upper()}}}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{spaced}\n")
@@ -617,14 +630,22 @@ def columnarFormatter(s, columns, crib, value):
     result.append("\\uplevel{\\hrulefill}")
     
     return "\n".join(result)
-def cryptarithm_formatter(value):
-    result = """\\normalsize \\question[""" + str(value) + """] Solve this \\textbf{cryptarithm} for $354916$ $75028$. Write out your final answer and $\\boxed{\\text{box}}$ it. \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}
+
+def cryptarithm_formatter(value, solution_text, solution_numbers, operation, bonus):
+    solution_text = solution_text.split(" ")
+    solution_numbers = str(solution_numbers).split(" ")
+    text_sol_numbers = " ".join(solution_numbers)
+    math_solution_numbers = "\\:".join(solution_numbers)
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+    result = """\\normalsize \\question[""" + str(value) + """] Solve this \\textbf{cryptarithm} for $""" + math_solution_numbers + """$. Write out your final answer and $\\boxed{\\text{box}}$ it.""" + bonus_text + """
 \\parskip 1cm
 
 \\Large
 \\begin{verbatim}
-Base 10 Multiplication
-Answer: 354916 75028 (two words)
+Base 10 """ + operation + """
+Answer: """ + text_sol_numbers + """
 
     TEXAS
 x     BED
@@ -749,7 +770,7 @@ def frac_format_sentence(s):
     formatted_string += current_line.rstrip()
     return formatted_string
 
-def fractionatedFormatter(s, keyword, crib, value, hint_type, hint):
+def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
     s = re.sub(r"[^\w\s]", "", s).upper()
     t = fractionatedEncoder(wordBreaker(s), keyword.replace(" ",""))
     th = frac_format_sentence(t)
@@ -760,12 +781,15 @@ def fractionatedFormatter(s, keyword, crib, value, hint_type, hint):
         if (i % 1 == 0):
             s += "  "
     result = []
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if hint_type == "Start Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{ {crib} }}.")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{ {crib} }}.{bonus_text}")
     if hint_type == "Middle Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{ {crib} }} corresponding to \\textbf{{{hint}}}.")    
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{ {crib} }} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
     if hint_type == "End Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} Xs of padding}} at the very end.")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} Xs of padding}} at the very end.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{s}\n")
@@ -851,13 +875,16 @@ def hillEncoder(text, keyword):
             d += 2
         return ''.join(e)
 
-def hillCreater(s, keyword, value):
+def hillCreater(s, keyword, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
     keyword = keyword.upper().replace(" ", "")
     matrix = hill_matrix(keyword)
     formatted = hillEncoder(s,keyword)
     result = []
-    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Hill}} cipher and the encoding key \\textbf{{{keyword}}}.")
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Hill}} cipher and the encoding key \\textbf{{{keyword}}}.{bonus_text}")
     result.append(matrix)
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
@@ -927,7 +954,7 @@ def nihilistEncoder(s, key, pk, bs):
     
     return y
 
-def nihilistFormatter(s, key, pk, bs, value, type, hint_type, hint):
+def nihilistFormatter(s, key, pk, bs, value, type, hint_type, hint, bonus):
     keyf = key.upper().replace("J","I").replace(" ","")
     s = s.upper().replace("J","I")
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
@@ -938,15 +965,18 @@ def nihilistFormatter(s, key, pk, bs, value, type, hint_type, hint):
         v = nihilistEncoder(s, keyf, pkf, bs)
     
     result = []
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if type == "DECODE":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher with a keyword of \\textbf{{{key}}} and a polybius key of \\textbf{{{pk}}}.")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher with a keyword of \\textbf{{{key}}} and a polybius key of \\textbf{{{pk}}}.{bonus_text}")
     elif type == "CRIB":
         if hint_type == "Start Crib":
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and the plaintext begins with {bs}.")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and the plaintext begins with {bs}.{bonus_text}")
         elif hint_type == "End Crib":
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and the plaintext ends with {bs}.")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and the plaintext ends with {bs}.{bonus_text}")
         elif hint_type == 'Middle Crib':
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and {hint}.")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and {hint}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{v}\n")
@@ -1021,7 +1051,7 @@ def porta_format_sentence(s):
     formatted_string += current_line.rstrip()
     return formatted_string
 
-def porta_formatter(s, keyword, bs, value, type, hint_type, hint):
+def porta_formatter(s, keyword, bs, value, type, hint_type, hint, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
     if type == "CRIB":
         crib = bs
@@ -1029,15 +1059,18 @@ def porta_formatter(s, keyword, bs, value, type, hint_type, hint):
     encoded_text = porta_encoder(s, keyword, bs)
     formatted_string = porta_format_sentence(encoded_text)
     result = []
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if type == "DECODE":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher with a keyword of \\textbf{{{keyword}}}.")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher with a keyword of \\textbf{{{keyword}}}.{bonus_text}")
     elif type == "CRIB":
         if hint_type == "Start Crib":
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told the plaintext begins with {crib}.")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told the plaintext begins with {crib}.{bonus_text}")
         if hint_type == "Middle Crib":
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told {hint}.")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told {hint}.{bonus_text}")
         if hint_type == "End Crib":
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told the plaintext ends with {crib}.")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told the plaintext ends with {crib}.{bonus_text}")
     result.append("\n\\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{formatted_string}\n")
@@ -1150,9 +1183,26 @@ def xeno_process_word(word, shift):
             unique_letters.append(char)
             seen.add(char)
     
-    alphabet = set('abcdefghijklmnñopqrstuvwxyz')
+    alphabet = set('abcdefghijklmnopqrstuvwxyz')
     
     unused_letters = sorted(alphabet - seen)
+    
+    # Add 'ñ' in its alphabetical position (after 'n', before 'o') if not in seen
+    if 'ñ' not in seen:
+        # Find the position where 'o' is (or would be) and insert 'ñ' before it
+        if 'o' in unused_letters:
+            o_index = unused_letters.index('o')
+            unused_letters.insert(o_index, 'ñ')
+        else:
+            # If 'o' is not in unused_letters, find where it should be inserted
+            # 'ñ' should come after 'n', so find the first letter after 'n'
+            for i, letter in enumerate(unused_letters):
+                if letter > 'n':
+                    unused_letters.insert(i, 'ñ')
+                    break
+            else:
+                # If all letters are before 'n', append 'ñ' at the end
+                unused_letters.append('ñ')
     
     result = ''.join(unique_letters) + ''.join(unused_letters)
     
@@ -1237,18 +1287,20 @@ def affine_format_sentence(s):
     formatted_string += current_line.rstrip()
     return formatted_string
 
-def affine_formatter(s, a, b, bs, value, type, hint):
+def affine_formatter(s, a, b, bs, value, type, hint, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
     if type == "CRIB":
         bs = 5
     encoded_text = affine_encoder(s, a,b, bs)
     formatted_string = affine_format_sentence(encoded_text)
-    
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     result = []
     if type == "DECODE":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher with an a value of \\textbf{{{a}}} and a b value of \\textbf{{{b}}}.")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher with $\\textrm{{a}}={a}$ and $\\textrm{{b}}={b}$.{bonus_text}")
     elif type == "CRIB":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher. You are told that {hint}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher. You are told that {hint}.{bonus_text}")
     result.append("\n\\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{formatted_string}\n")
@@ -1315,7 +1367,7 @@ def checkerboard_encoder(hkey,vkey,alph,s,bs):
     
     return y
 
-def checkerboarddecode(s, hkey, vkey, pk, bs, value):
+def checkerboarddecode(s, hkey, vkey, pk, bs, value, bonus):
     hkey = hkey.upper().replace("J","I")
     vkey = vkey.upper().replace("J","I")
     s = s.upper().replace("J","I")
@@ -1323,9 +1375,11 @@ def checkerboarddecode(s, hkey, vkey, pk, bs, value):
     pkf = pk.upper().replace("J","I")
     alph = checkerboard_alphabet(pk)
     v = checkerboard_encoder(hkey,vkey,alph,s,bs)
-    
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     result = []
-    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Checkerboard}} cipher with a polybius keyword of \\textbf{{{pk}}}.")
+    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Checkerboard}} cipher with a polybius keyword of \\textbf{{{pk}}}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{v}\n")
@@ -1345,7 +1399,7 @@ def checkerboarddecode(s, hkey, vkey, pk, bs, value):
 
     return "\n".join(result)
 
-def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value):
+def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
     hkey = hkey.upper().replace("J","I")
     vkey = vkey.upper().replace("J","I")
     s = s.upper().replace("J","I")
@@ -1359,7 +1413,10 @@ def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value):
     elif type == "Middle Crib":
         c = f"{mid}"
     result = []
-    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Checkerboard}} cipher. You are told that {c}.")
+    bonus_text=""
+    if bonus:
+        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+    result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Checkerboard}} cipher. You are told that {c}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{v}\n")
@@ -1415,12 +1472,14 @@ def main():
         with open(key_file, 'w') as f:
             f.write("")  # Create an empty file if it doesn't exist
 
-    df = pd.read_excel(input_sheet, sheet_name=1)
+    df = pd.read_excel(input_sheet, sheet_name="Order")
     df = df.replace(np.nan, '', regex=True)
     return df, output_file, key_file
 
 def sheet_writer(df, output_file, key_file):
     row_counter = 0
+    bonus_used = 0
+    checkerboard_bonus = False
     while row_counter < len(df):
         result = ""
         if row_counter % 2 == 1:
@@ -1431,6 +1490,19 @@ def sheet_writer(df, output_file, key_file):
             extract = True
         else:
             extract = False
+       
+        if df.loc[row_counter, "Bonus"]:
+            if df.loc[row_counter,"Cipher"] in ["ARISTOCRAT", "PATRISTOCRAT", "XENOCRYPT"]:
+                raise ValueError("You cannot set a monoalphabetic cipher to bonus")
+            if df.loc[row_counter,"Cipher"] == "CHECKERBOARD":
+                checkerboard_bonus = True
+            bonus = True
+            bonus_used+=1
+        else:
+            bonus = False
+        if not checkerboard_bonus and bonus_used == 3:
+            raise ValueError("No checkeboard bonus was set.")
+        
         if df.loc[row_counter,"Cipher"] == "ARISTOCRAT":
             result += monoalph_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Aristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
             row_counter+=1
@@ -1438,52 +1510,58 @@ def sheet_writer(df, output_file, key_file):
             result += monoalph_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Patristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
             row_counter += 1
         elif df.loc[row_counter,"Cipher"] == "ATBASH":
-            result += atbash_encoder(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"])
+            result += atbash_encoder(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], bonus)
             row_counter +=1
         elif df.loc[row_counter, "Cipher"] == "BACONIAN":
             if df.loc[row_counter, "Type"] == "WORDS":
-                result += baconianWordsFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type of Hint"])
+                result += baconianWordsFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type of Hint"], bonus)
                 row_counter += 1
             if df.loc[row_counter, "Type"] == "LETTERS" or df.loc[row_counter, "Type"] == "RANDOM LETTERS" or df.loc[row_counter, "Type"] == "SEQUENCE":
-                result += baconianLetters(df.loc[row_counter,"Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], 55, df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"])
+                result += baconianLetters(df.loc[row_counter,"Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], 55, df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], bonus)
                 row_counter += 1
         elif df.loc[row_counter, "Cipher"] == "CAESAR":
-            result += caesar_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Value"])
+            result += caesar_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Value"], bonus)
             row_counter +=1
         elif df.loc[row_counter, "Cipher"] == "COLUMNAR":
-            result += columnarFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Value"])
+            result += columnarFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Value"], bonus)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "CRYPTARITHM":
-            result += cryptarithm_formatter(df.loc[row_counter, "Value"])
+            result += cryptarithm_formatter(df.loc[row_counter, "Value"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], bonus)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "FRACMORSE":
-            result += fractionatedFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"])
+            result += fractionatedFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], bonus)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "HILL":
-            result += hillCreater(df.loc[row_counter,"Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter,"Value"])
+            result += hillCreater(df.loc[row_counter,"Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter,"Value"], bonus)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "NIHILIST":
-            result += nihilistFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"])
+            result += nihilistFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], bonus)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "PORTA":
-            result += porta_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"])
+            result += porta_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], bonus)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "XENOCRYPT":
             result += xeno_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Aristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "AFFINE":
-            result += affine_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Hint"])
+            result += affine_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Hint"], bonus)
             row_counter +=1
         elif df.loc[row_counter, "Cipher"] == "CHECKERBOARD":
             if df.loc[row_counter, "Type"] == "DECODE":
-                result = checkerboarddecode(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], 5, df.loc[row_counter, "Value"])
+                result = checkerboarddecode(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], 5, df.loc[row_counter, "Value"], bonus)
                 row_counter +=1
             elif df.loc[row_counter, "Type"] == "CRIB":
-                result = checkerboardcrib(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Value"])
+                result = checkerboardcrib(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Value"], bonus)
                 row_counter +=1
         # sheet writer
         write_file(result, output_file)
-        write_file(f"\\question {df.loc[row_counter-1, "Plaintext"]}", key_file)
+        if df.loc[row_counter-1,"Cipher"] == "ARISTOCRAT" and extract:
+            write_string = f"\\question \\textbf{{{df.loc[row_counter-1, "Key1"]}}}: {df.loc[row_counter-1, "Plaintext"]}"
+        elif df.loc[row_counter-1,"Cipher"] == "CRYPTARITHM":
+            write_string = f"\\question \\textbf{{{df.loc[row_counter-1, "Key1"]}}}: {df.loc[row_counter-1, "Plaintext"]}"
+        else:
+            write_string = f"\\question {df.loc[row_counter-1, "Plaintext"]}"
+        write_file(write_string, key_file)
 
 if __name__ == "__main__":
     df, output_file, key_file = main()

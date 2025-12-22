@@ -1074,7 +1074,6 @@ elbow
 fatal
 sites
 moths
-meats
 foxes
 mined
 attic
@@ -1594,7 +1593,6 @@ lowly
 abide
 depot
 oases
-asses
 sheds
 fudge
 pills
@@ -2034,7 +2032,6 @@ hoist
 fades
 vicar
 acorn
-pussy
 gruff
 musty
 tarts
@@ -2232,7 +2229,6 @@ goody
 gazes
 dowel
 calms
-bitch
 scowl
 gulps
 coded
@@ -2575,7 +2571,6 @@ tardy
 briar
 grimy
 ultra
-meaty
 halve
 wails
 suede
@@ -2921,7 +2916,6 @@ skimp
 bluer
 slake
 dowdy
-penis
 brays
 pupas
 egret
@@ -3895,7 +3889,6 @@ moire
 scion
 henna
 kraut
-dicks
 lifer
 prigs
 bebop
@@ -4807,7 +4800,6 @@ curia
 kebob
 cycad
 talky
-fucks
 tapis
 amide
 dolce
@@ -5067,7 +5059,6 @@ ousel
 umiak
 cuppy
 hames
-shits
 azine
 glads
 tacet
@@ -5736,7 +5727,6 @@ bocce
 kicky
 taros
 lings
-dicky
 nerdy
 abend
 stela
@@ -5749,8 +5739,6 @@ wonky
 stied
 hypos
 assed
-spumy
-osier
 roble
 rumba
 biffy

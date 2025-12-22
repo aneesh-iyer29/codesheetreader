@@ -1,3 +1,4 @@
 /tests/
 *.xlsx
 *.DS_Store
+/__pycache__/
