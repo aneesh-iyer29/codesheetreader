@@ -175,6 +175,8 @@ def monoalph_creator(s, value, type, hint_type, hint, alph="", keyword="", shift
         v+= " about " + hint[1] + ". You are told that " + hint[0] + ".\n"
     elif hint_type == "Subject":
         v+= f" about {hint}."
+    else:
+        v+=". "
     if extract:
         v+=f"You are told that the keyword used is {len(keyword)} letters long. What is the keyword? "
         v+="$\\boxed{\\text{Box}}$ your final answer."
@@ -873,7 +875,7 @@ def hillEncoder(text, keyword):
             e.append(chr(value1 + 65))
             e.append(chr(value2 + 65))
             d += 2
-        return ''.join(e)
+        return ' '.join(e)
 
 def hillCreater(s, keyword, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
