@@ -864,7 +864,7 @@ def hillEncoder(text, keyword):
             value3 = (b[6] * c[d] + b[7] * c[d+1] + b[8] * c[d+2]) % 26
             e.extend([chr(value1 + 65), chr(value2 + 65), chr(value3 + 65)])
             d += 3
-        return ''.join(e)
+        return ' '.join(e)
     if len(keyword) == 4:
         if len(c) % 2 == 1:
             c.append(25)
