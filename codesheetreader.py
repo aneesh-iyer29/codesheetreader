@@ -1404,6 +1404,7 @@ def checkerboarddecode(s, hkey, vkey, pk, bs, value, bonus):
 def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
     hkey = hkey.upper().replace("J","I")
     vkey = vkey.upper().replace("J","I")
+    s = re.sub(r'[^a-zA-Z]', '', s).upper()
     s = s.upper().replace("J","I")
     pkf = pk.upper().replace("J","I")
     alph = checkerboard_alphabet(pk)
