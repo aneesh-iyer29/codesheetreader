@@ -1513,7 +1513,7 @@ def sheet_writer(df, output_file, key_file):
             result += monoalph_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Patristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
             row_counter += 1
         elif df.loc[row_counter,"Cipher"] == "ATBASH":
-            result += atbash_encoder(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], bonus)
+            result += atbash_encoder(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"])
             row_counter +=1
         elif df.loc[row_counter, "Cipher"] == "BACONIAN":
             if df.loc[row_counter, "Type"] == "WORDS":
