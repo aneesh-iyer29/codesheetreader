@@ -1,3 +1,4 @@
+from multiprocessing import Value
 from tokenize import String
 import pandas as pd
 import random
@@ -37,6 +38,9 @@ def aristo_letter_replacement(s, keyword="", shift="", alph=""):
         alphabet_upper = process_word(keyword,0).upper()
         replacement_alphabet = process_word(keyword,shift).upper()
 
+    for i in range(26):
+        if alphabet_upper[i] == replacement_alphabet[i]:
+            raise ValueError("Cannot have a letter map to itself; check your keys")
     translation_table = str.maketrans(alphabet_upper, replacement_alphabet)
     replaced_string = s.upper().translate(translation_table)
     
@@ -232,8 +236,9 @@ def atbash_encoder(text, bs, value):
 def baconLetterEncoder(s, a, b, lw, type):
     baconed = ""
     encoded = ""
-    a = list(a)
-    b = list(b)
+    # Coerce to string so numeric keys from Excel (e.g. 134, 689) work
+    a = list(str(a))
+    b = list(str(b))
     s = s.upper().replace(" ", "")
     alphabet = {
         "A": "AAAAA",
@@ -964,6 +969,8 @@ def nihilistFormatter(s, key, pk, bs, value, type, hint_type, hint, bonus):
     if type == "CRIB":
         v = nihilistEncoder(s, keyf, pkf, 1)
     else:
+        if not bs:
+            bs = 5
         v = nihilistEncoder(s, keyf, pkf, bs)
     
     result = []
@@ -1109,7 +1116,9 @@ def xeno_letter_replacement(s, keyword="", shift="", alph=""):
     elif alph == "K3":
         alphabet_upper = xeno_process_word(keyword,0).upper()
         replacement_alphabet = xeno_process_word(keyword,shift).upper()
-
+    for i in range(27):
+        if alphabet_upper[i] == replacement_alphabet[i]:
+            raise ValueError("Cannot have a letter map to itself; check your keys")
     translation_table = str.maketrans(alphabet_upper, replacement_alphabet)
     replaced_string = s.upper().translate(translation_table)
     
@@ -1515,9 +1524,13 @@ def sheet_writer(df, output_file, key_file):
             if df.loc[row_counter, "Type"] == "WORDS":
                 result += baconianWordsFormatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type of Hint"], bonus)
                 row_counter += 1
-            if df.loc[row_counter, "Type"] == "LETTERS" or df.loc[row_counter, "Type"] == "RANDOM LETTERS" or df.loc[row_counter, "Type"] == "SEQUENCE":
-                result += baconianLetters(df.loc[row_counter,"Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], 55, df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], bonus)
+            elif df.loc[row_counter, "Type"] in ("LETTERS", "RANDOM LETTERS", "SEQUENCE", "DECODE"):
+                # DECODE in the sheet means letter-based Baconian (keys for A/B); use LETTERS encoding
+                bacon_type = df.loc[row_counter, "Type"] if df.loc[row_counter, "Type"] != "DECODE" else "LETTERS"
+                result += baconianLetters(df.loc[row_counter,"Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], 55, df.loc[row_counter, "Value"], bacon_type, df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], bonus)
                 row_counter += 1
+            else:
+                raise ValueError(f"BACONIAN row {row_counter}: unknown Type {repr(df.loc[row_counter, 'Type'])}. Use WORDS, LETTERS, RANDOM LETTERS, SEQUENCE, or DECODE.")
         elif df.loc[row_counter, "Cipher"] == "CAESAR":
             result += caesar_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Value"], bonus)
             row_counter +=1
