@@ -169,7 +169,7 @@ def monoalph_creator(s, value, type, hint_type, hint, alph="", keyword="", shift
     if not extract:
         v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + type + "}"
     else:
-        v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet. "
+        v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
     if hint_type == "None":
         v += ".\n"
     elif hint_type == "Word" or hint_type == "Letters":
@@ -490,6 +490,8 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
 # caesar
 
 def caesar_encoder(s, shift, bs):
+     if shift % 26 == 0:
+        raise ValueError("Self-mapping is not allowed, change shift from 0")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     c = [ord(i) - 65 for i in s]
     encoded = []
@@ -792,9 +794,9 @@ def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
     if bonus:
         bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if hint_type == "Start Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{ {crib} }}.{bonus_text}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{{crib}}}.{bonus_text}")
     if hint_type == "Middle Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{ {crib} }} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{{crib}}} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
     if hint_type == "End Crib":
         result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} Xs of padding}} at the very end.{bonus_text}")
     result.append("\n \\Large{")
@@ -869,7 +871,19 @@ def hillEncoder(text, keyword):
             value3 = (b[6] * c[d] + b[7] * c[d+1] + b[8] * c[d+2]) % 26
             e.extend([chr(value1 + 65), chr(value2 + 65), chr(value3 + 65)])
             d += 3
-        return ' '.join(e)
+       triples = [''.join(e[i:i+3]) for i in range(0, len(e), 3)]
+encoded_text = '  '.join(triples)
+
+formatted_string = ""
+current_line = ""
+for char in encoded_text:
+    if len(current_line) >= 24 and char == ' ':
+        formatted_string += current_line.rstrip() + "\n\n\n"
+        current_line = ""
+    else:
+        current_line += char
+formatted_string += current_line.rstrip()
+return formatted_string
     if len(keyword) == 4:
         if len(c) % 2 == 1:
             c.append(25)
@@ -880,7 +894,19 @@ def hillEncoder(text, keyword):
             e.append(chr(value1 + 65))
             e.append(chr(value2 + 65))
             d += 2
-        return ' '.join(e)
+        pairs = [''.join(e[i:i+2]) for i in range(0, len(e), 2)]
+encoded_text = '  '.join(pairs)
+
+formatted_string = ""
+current_line = ""
+for char in encoded_text:
+    if len(current_line) >= 24 and char == ' ':
+        formatted_string += current_line.rstrip() + "\n\n\n"
+        current_line = ""
+    else:
+        current_line += char
+formatted_string += current_line.rstrip()
+return formatted_string
 
 def hillCreater(s, keyword, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
@@ -1263,6 +1289,8 @@ def xeno_creator(s, value, type, hint_type, hint, alph="", keyword="", shift="",
 
 # affine (at the end because i forgot oops)
 def affine_encoder(s, a, b, bs):
+     if any((a * x + b) % 26 == x for x in range(26)):
+        raise ValueError(f"Affine cipher with a={a}, b={b} maps at least one letter to itself")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     d = [ord(i) - 65 for i in s]
     encoded = []
@@ -1508,8 +1536,12 @@ def sheet_writer(df, output_file, key_file):
             bonus_used+=1
         else:
             bonus = False
-        if not checkerboard_bonus and bonus_used == 3:
-            raise ValueError("No checkeboard bonus was set.")
+      if bonus_used != 3:
+    print(f"Must have 3 special bonuses, but found {bonus_used}.")
+    exit()
+if not checkerboard_bonus:
+    print("At least one special bonus must be checkerboard.")
+    exit()
         
         if df.loc[row_counter,"Cipher"] == "ARISTOCRAT":
             result += monoalph_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Aristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
