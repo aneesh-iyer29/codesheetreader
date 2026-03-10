@@ -172,9 +172,9 @@ def monoalph_creator(s, value, type, hint_type, hint, alph="", keyword="", shift
         if type == "Aristocrat":
           v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
             elif type == "Xenocrypt":
-              v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
+              v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet"
             elif type == "Patristocrat":
-            v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
+            v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet"
     if hint_type == "None":
         v += ".\n"
     elif hint_type == "Word" or hint_type == "Letters":
@@ -803,7 +803,11 @@ def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
     if hint_type == "Middle Crib":
         result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{{crib}}} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
     if hint_type == "End Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} Xs of padding}} at the very end.{bonus_text}")
+        if hint == 1:
+            extra_plural = ""
+        else:
+            extra_plural = "s"
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} X{extra_plural} of padding}} at the very end.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{s}\n")
@@ -1295,7 +1299,7 @@ def xeno_creator(s, value, type, hint_type, hint, alph="", keyword="", shift="",
 # affine (at the end because i forgot oops)
 def affine_encoder(s, a, b, bs):
      if a == 1 or a == 13 or a%2==0:
-        raise ValueError(f"a = {a}. a must be coprime with 26")
+        raise ValueError(f"a = {a}. a must be coprime with 26 (odd and not 1 or 13)")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     d = [ord(i) - 65 for i in s]
     encoded = []
@@ -1541,10 +1545,8 @@ def sheet_writer(df, output_file, key_file):
             bonus_used+=1
         else:
             bonus = False
-      
-        if not checkerboard_bonus:
-          print("At least one special bonus must be checkerboard.")
-          exit()
+        if not checkerboard_bonus and bonus_used == 3:
+            raise ValueError("No checkeboard bonus was set.")
         
         if df.loc[row_counter,"Cipher"] == "ARISTOCRAT":
             result += monoalph_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Aristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
