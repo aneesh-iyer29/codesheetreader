@@ -169,7 +169,12 @@ def monoalph_creator(s, value, type, hint_type, hint, alph="", keyword="", shift
     if not extract:
         v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + type + "}"
     else:
-        v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet. "
+        if type == "Aristocrat":
+          v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
+            elif type == "Xenocrypt":
+              v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet"
+            elif type == "Patristocrat":
+            v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as a \\textbf{" + type + "} with a " + alph + " alphabet"
     if hint_type == "None":
         v += ".\n"
     elif hint_type == "Word" or hint_type == "Letters":
@@ -490,6 +495,8 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
 # caesar
 
 def caesar_encoder(s, shift, bs):
+     if shift % 26 == 0:
+        raise ValueError("Self-mapping is not allowed, change shift from 0")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     c = [ord(i) - 65 for i in s]
     encoded = []
@@ -792,11 +799,15 @@ def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
     if bonus:
         bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     if hint_type == "Start Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{ {crib} }}.{bonus_text}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{{crib}}}.{bonus_text}")
     if hint_type == "Middle Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{ {crib} }} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{{crib}}} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
     if hint_type == "End Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} Xs of padding}} at the very end.{bonus_text}")
+        if hint == 1:
+            extra_plural = ""
+        else:
+            extra_plural = "s"
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} X{extra_plural} of padding}} at the very end.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{s}\n")
@@ -869,7 +880,19 @@ def hillEncoder(text, keyword):
             value3 = (b[6] * c[d] + b[7] * c[d+1] + b[8] * c[d+2]) % 26
             e.extend([chr(value1 + 65), chr(value2 + 65), chr(value3 + 65)])
             d += 3
-        return ' '.join(e)
+       triples = [''.join(e[i:i+3]) for i in range(0, len(e), 3)]
+encoded_text = '  '.join(triples)
+
+formatted_string = ""
+current_line = ""
+for char in encoded_text:
+    if len(current_line) >= 24 and char == ' ':
+        formatted_string += current_line.rstrip() + "\n\n\n"
+        current_line = ""
+    else:
+        current_line += char
+formatted_string += current_line.rstrip()
+return formatted_string
     if len(keyword) == 4:
         if len(c) % 2 == 1:
             c.append(25)
@@ -880,7 +903,19 @@ def hillEncoder(text, keyword):
             e.append(chr(value1 + 65))
             e.append(chr(value2 + 65))
             d += 2
-        return ' '.join(e)
+        pairs = [''.join(e[i:i+2]) for i in range(0, len(e), 2)]
+encoded_text = '  '.join(pairs)
+
+formatted_string = ""
+current_line = ""
+for char in encoded_text:
+    if len(current_line) >= 24 and char == ' ':
+        formatted_string += current_line.rstrip() + "\n\n\n"
+        current_line = ""
+    else:
+        current_line += char
+formatted_string += current_line.rstrip()
+return formatted_string
 
 def hillCreater(s, keyword, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
@@ -1263,6 +1298,8 @@ def xeno_creator(s, value, type, hint_type, hint, alph="", keyword="", shift="",
 
 # affine (at the end because i forgot oops)
 def affine_encoder(s, a, b, bs):
+     if a == 1 or a == 13 or a%2==0:
+        raise ValueError(f"a = {a}. a must be coprime with 26 (odd and not 1 or 13)")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     d = [ord(i) - 65 for i in s]
     encoded = []
