@@ -169,7 +169,12 @@ def monoalph_creator(s, value, type, hint_type, hint, alph="", keyword="", shift
     if not extract:
         v = "\\normalsize \\question[" + str(value) + "] Solve this \\textbf{" + alph + type + "}"
     else:
-        v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
+        if type == "Aristocrat":
+          v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
+            elif type == "Xenocrypt":
+              v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
+            elif type == "Patristocrat":
+            v = "\\normalsize \\question[" + str(value) + "] The following quote was encoded as an \\textbf{" + type + "} with a " + alph + " alphabet"
     if hint_type == "None":
         v += ".\n"
     elif hint_type == "Word" or hint_type == "Letters":
@@ -1289,8 +1294,8 @@ def xeno_creator(s, value, type, hint_type, hint, alph="", keyword="", shift="",
 
 # affine (at the end because i forgot oops)
 def affine_encoder(s, a, b, bs):
-     if any((a * x + b) % 26 == x for x in range(26)):
-        raise ValueError(f"Affine cipher with a={a}, b={b} maps at least one letter to itself")
+     if a == 1 or a == 13 or a%2==0:
+        raise ValueError(f"a = {a}. a must be coprime with 26")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     d = [ord(i) - 65 for i in s]
     encoded = []
@@ -1536,12 +1541,10 @@ def sheet_writer(df, output_file, key_file):
             bonus_used+=1
         else:
             bonus = False
-      if bonus_used != 3:
-    print(f"Must have 3 special bonuses, but found {bonus_used}.")
-    exit()
-if not checkerboard_bonus:
-    print("At least one special bonus must be checkerboard.")
-    exit()
+      
+        if not checkerboard_bonus:
+          print("At least one special bonus must be checkerboard.")
+          exit()
         
         if df.loc[row_counter,"Cipher"] == "ARISTOCRAT":
             result += monoalph_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Aristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
