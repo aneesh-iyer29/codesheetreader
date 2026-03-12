@@ -495,7 +495,7 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
 # caesar
 
 def caesar_encoder(s, shift, bs):
-     if shift % 26 == 0:
+    if shift % 26 == 0:
         raise ValueError("Self-mapping is not allowed, change shift from 0")
     s = s.upper().replace(" ", "").replace("'", "").replace(",", "").replace(".", "")
     c = [ord(i) - 65 for i in s]
