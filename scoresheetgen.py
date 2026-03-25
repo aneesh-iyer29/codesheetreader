@@ -30,7 +30,7 @@ def main():
         qtype = str(row.get("Type", "")).strip().upper()
         cipher_type_flags.append(cipher == "CRYPTARITHM" or (cipher == "ARISTOCRAT" and qtype == "EXTRACT"))
 
-    output_df = pd.DataFrame([question_values, bonus_flags, cipher_type_flags])
+    output_df = pd.DataFrame([bonus_flags, cipher_type_flags, question_values])
     output_df.to_excel(output_sheet, sheet_name="Scoresheet", index=False, header=False)
     print(f"Wrote scoresheet to {output_sheet}")
 
