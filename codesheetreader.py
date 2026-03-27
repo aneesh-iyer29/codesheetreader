@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import numpy as np
+import unicodedata
 
 # Aristocrat_Code
 
@@ -1125,6 +1126,17 @@ def porta_formatter(s, keyword, bs, value, type, hint_type, hint, bonus):
 
 # Xenocrypts
 
+def remove_accents(s):
+    result = ""
+    for char in s:
+        if char in ('ñ', 'Ñ'):
+            result += char  # keep ñ as-is
+            continue
+        decomposed = unicodedata.normalize('NFD', char)
+        base = ''.join(c for c in decomposed if unicodedata.category(c) != 'Mn')
+        result += base
+    return result
+
 def xeno_letter_replacement(s, keyword="", shift="", alph=""):
     def derangement(lst):
         """Generate a derangement of lst"""
@@ -1258,6 +1270,7 @@ def xeno_process_word(word, shift):
     return shifted_result
 
 def xeno_creator(s, value, type, hint_type, hint, alph="", keyword="", shift="", extract = False):
+    s = remove_accents(s)
     replaced_string = xeno_letter_replacement(s, keyword, shift, alph)
     formatted_string = aristo_format_sentence(replaced_string)
     table = xeno_frequency_table(replaced_string, alph)
