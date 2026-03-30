@@ -881,17 +881,15 @@ def hillEncoder(text, keyword):
             value3 = (b[6] * c[d] + b[7] * c[d+1] + b[8] * c[d+2]) % 26
             e.extend([chr(value1 + 65), chr(value2 + 65), chr(value3 + 65)])
             d += 3
-        triples = [''.join(e[i:i+3]) for i in range(0, len(e), 3)]
-        encoded_text = '  '.join(triples)
-
         formatted_string = ""
         current_line = ""
-        for char in encoded_text:
-            if len(current_line) >= 24 and char == ' ':
+        i = 0
+        for char in e:
+            if len(current_line) >= 72:
                 formatted_string += current_line.rstrip() + "\n\n\n"
-                current_line = ""
+                current_line = f"{char} "
             else:
-                current_line += char
+                current_line += char + " "
         formatted_string += current_line.rstrip()
         return formatted_string
     if len(keyword) == 4:
@@ -904,19 +902,16 @@ def hillEncoder(text, keyword):
             e.append(chr(value1 + 65))
             e.append(chr(value2 + 65))
             d += 2
-        pairs = [''.join(e[i:i+2]) for i in range(0, len(e), 2)]
-    encoded_text = '  '.join(pairs)
-
-    formatted_string = ""
-    current_line = ""
-    for char in encoded_text:
-        if len(current_line) >= 24 and char == ' ':
-            formatted_string += current_line.rstrip() + "\n\n\n"
-            current_line = ""
-        else:
-            current_line += char
-    formatted_string += current_line.rstrip()
-    return formatted_string
+        formatted_string = ""
+        current_line = ""
+        for char in e:
+            if len(current_line) >= 72:
+                formatted_string += current_line.rstrip() + "\n\n\n"
+                current_line = f"{char} "
+            else:
+                current_line += char + " "
+        formatted_string += current_line.rstrip()
+        return formatted_string
 
 def hillCreater(s, keyword, value, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
