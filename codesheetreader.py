@@ -37,7 +37,7 @@ def aristo_letter_replacement(s, keyword="", shift="", alph=""):
         replacement_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     else:
         alphabet_upper = process_word(keyword,0).upper()
-        replacement_alphabet = process_word(keyword,shift).upper()
+        replacement_alphabet = process_word(keyword, 26 - shift).upper()
 
     for i in range(26):
         if alphabet_upper[i] == replacement_alphabet[i]:
