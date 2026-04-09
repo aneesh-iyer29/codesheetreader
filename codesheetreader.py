@@ -766,7 +766,105 @@ def wordBreaker(s):
             pending = ""
         x += 1
     return morse
-
+_MORSE_LETTERS = {
+    'A': '.-',  'B': '-...', 'C': '-.-.', 'D': '-..',  'E': '.',   'F': '..-.',
+    'G': '--.',  'H': '....', 'I': '..',   'J': '.---', 'K': '-.-', 'L': '.-..',
+    'M': '--',   'N': '-.',   'O': '---',  'P': '.--.', 'Q': '--.-','R': '.-.',
+    'S': '...',  'T': '-',   'U': '..-',  'V': '...-', 'W': '.--', 'X': '-..-',
+    'Y': '-.--', 'Z': '--..'
+}
+_SYMBOL_MAP = {'.': "$\\newmoon$", '-': "-$\\,$", 'x': "$\\times$"}
+ 
+ 
+def _frac_morse_stream(plaintext):
+    """
+    Convert plaintext to the full Fractionated Morse stream string.
+    Letters are separated by a single 'x'; words are separated by 'xx'
+    (i.e. the trailing letter-sep 'x' of the last letter + an extra 'x').
+    This exactly mirrors the morseCode() / wordBreaker() pipeline.
+    """
+    plaintext = re.sub(r"[^\w\s]", "", plaintext).upper()
+    stream = ""
+    words = plaintext.split()
+    for wi, word in enumerate(words):
+        for ch in word:
+            if ch not in _MORSE_LETTERS:
+                continue
+            stream += _MORSE_LETTERS[ch]
+            stream += 'x'               # letter separator
+        if wi < len(words) - 1:
+            stream += 'x'               # extra x → xx total between words
+    return stream
+ 
+ 
+def _frac_crib_start_index(plaintext, crib):
+    """
+    Return the integer index where the crib's morse stream begins inside
+    the full plaintext's morse stream.  Raises ValueError if not found.
+    """
+    crib_clean = re.sub(r"[^\w\s]", "", crib).upper().strip()
+    crib_stream = _frac_morse_stream(crib_clean)
+    full_stream = _frac_morse_stream(plaintext)
+ 
+    idx = full_stream.find(crib_stream)
+    if idx == -1:
+        raise ValueError(
+            f"Crib '{crib}' not found in morse stream.\n"
+            f"  Full stream : {full_stream}\n"
+            f"  Crib stream : {crib_stream}"
+        )
+    return idx
+ 
+ 
+def frac_auto_hint(plaintext, crib, keyword):
+    """
+    Given the full plaintext, a crib word/phrase, and the encoding keyword,
+    return a formatted hint string such as:
+        "G = ●●×; O = –×●; S = ×●–; Z = ××–"
+    sorted alphabetically by ciphertext letter.
+ 
+    This works for Start, Middle, and End cribs — just pass the crib text.
+    """
+    keyword = keyword.replace(" ", "")
+    crib_clean = re.sub(r"[^\w\s]", "", crib).upper().strip()
+ 
+    # Build keyed trigram→letter map
+    alpha = fracalphabet(keyword)
+    b = list(alpha)
+    fmorse_map = {
+        "...": b[0], "..-": b[1], "..x": b[2], ".-.": b[3], ".--": b[4],
+        ".-x": b[5], ".x.": b[6], ".x-": b[7], ".xx": b[8], "-..": b[9],
+        "-.-": b[10], "-.x": b[11], "--.": b[12], "---": b[13], "--x": b[14],
+        "-x.": b[15], "-x-": b[16], "-xx": b[17], "x..": b[18], "x.-": b[19],
+        "x.x": b[20], "x-.": b[21], "x--": b[22], "x-x": b[23], "xx.": b[24],
+        "xx-": b[25]
+    }
+ 
+    start_idx = _frac_crib_start_index(plaintext, crib_clean)
+    crib_stream = _frac_morse_stream(crib_clean)
+ 
+    # Pad front to align to trigram boundary, pad back to fill last trigram
+    offset = start_idx % 3
+    padded = ('x' * offset) + crib_stream
+    while len(padded) % 3 != 0:
+        padded += 'x'
+ 
+    seen_pairs = {}
+    for i in range(0, len(padded), 3):
+        trigram = padded[i:i+3]
+        if trigram not in fmorse_map:
+            continue
+        ct_letter = fmorse_map[trigram]
+        pretty = ''.join(_SYMBOL_MAP[c] for c in trigram)
+        # Exclude trigrams that are entirely padding (before or after the real crib)
+        actual_start = i - offset          # position in crib_stream
+        actual_end   = actual_start + 3
+        if actual_end > 0 and actual_start < len(crib_stream):
+            seen_pairs[ct_letter] = pretty
+ 
+    parts = [f"{ct} = {tri}" for ct, tri in sorted(seen_pairs.items())]
+    return '; '.join(parts)
+ 
 def frac_format_sentence(s):
     words = s.split()
     formatted_string = ""
@@ -787,31 +885,57 @@ def frac_format_sentence(s):
 
 def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
     s = re.sub(r"[^\w\s]", "", s).upper()
-    t = fractionatedEncoder(wordBreaker(s), keyword.replace(" ",""))
+    t = fractionatedEncoder(wordBreaker(s), keyword.replace(" ", ""))
     th = frac_format_sentence(t)
     th = th.replace(" ", "")
-    s = "  "
+    display = "  "
     for i in range(len(th)):
-        s += th[i]
+        display += th[i]
         if (i % 1 == 0):
-            s += "  "
+            display += "  "
+ 
     result = []
-    bonus_text=""
+    bonus_text = ""
     if bonus:
-        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+        bonus_text = " \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+ 
+    # ── Auto-generate the hint string for every crib type ──────────────────
+    if hint_type in ("Start Crib", "Middle Crib", "End Crib"):
+        try:
+            auto_hint = frac_auto_hint(s, crib, keyword)
+        except ValueError as e:
+            # If something goes wrong, fall back to whatever was in the sheet
+            auto_hint = hint
+            print(f"[frac_auto_hint WARNING] {e}\n  Falling back to manual hint.")
+ 
     if hint_type == "Start Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with \\textbf{{{crib}}}.{bonus_text}")
-    if hint_type == "Middle Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains \\textbf{{{crib}}} corresponding to \\textbf{{{hint}}}.{bonus_text}")    
-    if hint_type == "End Crib":
-        if hint == 1:
-            extra_plural = ""
-        else:
-            extra_plural = "s"
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with \\textbf{{{crib}}} and \\textbf{{{hint} X{extra_plural} of padding}} at the very end.{bonus_text}")
+        result.append(
+            f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+            f"\\textbf{{Fractionated Morse}} cipher. You are told the plaintext begins with "
+            f"\\textbf{{{crib}}} corresponding to \\textbf{{{auto_hint}}}.{bonus_text}"
+        )
+    elif hint_type == "Middle Crib":
+        result.append(
+            f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+            f"\\textbf{{Fractionated Morse}} cipher. You are told the plaintext contains "
+            f"\\textbf{{{crib}}} corresponding to \\textbf{{{auto_hint}}}.{bonus_text}"
+        )
+    elif hint_type == "End Crib":
+        # Count padding x's at the end of the full stream
+        full_stream = _frac_morse_stream(s)
+        remainder = len(full_stream) % 3
+        num_padding = (3 - remainder) % 3   # 0, 1, or 2
+        extra_plural = "" if num_padding == 1 else "s"
+        result.append(
+            f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+            f"\\textbf{{Fractionated Morse}} cipher. You are told the plaintext ends with "
+            f"\\textbf{{{crib}}} corresponding to \\textbf{{{auto_hint}}}"
+            f" and \\textbf{{{num_padding} X{extra_plural} of padding}} at the very end.{bonus_text}"
+        )
+ 
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
-    result.append(f"{s}\n")
+    result.append(f"{display}\n")
     result.append("\\end{verbatim}}\n")
     result.append("\\normalsize")
     result.append("\\begin{center}")
@@ -828,8 +952,9 @@ def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
     result.append("\\end{center}\n\n")
     result.append("\\vfill")
     result.append("\\uplevel{\\hrulefill}")
-
+ 
     return "\n".join(result)
+ 
 
 # hill cipher
 
