@@ -773,7 +773,7 @@ _MORSE_LETTERS = {
     'S': '...',  'T': '-',   'U': '..-',  'V': '...-', 'W': '.--', 'X': '-..-',
     'Y': '-.--', 'Z': '--..'
 }
-_SYMBOL_MAP = {'.': "$\\newmoon$", '-': '–', 'x': "$\\cross$"}
+_SYMBOL_MAP = {'.': "$\\newmoon$", '-': "-$\\,$", 'x': "$\\times$"}
  
  
 def _frac_morse_stream(plaintext):
