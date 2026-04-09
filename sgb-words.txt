@@ -1766,7 +1766,6 @@ leaks
 fares
 dodge
 godly
-squaw
 affix
 brute
 nicer
@@ -1975,7 +1974,6 @@ strut
 sloop
 prowl
 roach
-cocks
 bland
 dials
 plume
@@ -2608,7 +2606,6 @@ vices
 jumbo
 blobs
 blots
-spunk
 acrid
 topaz
 cubed
@@ -2823,7 +2820,6 @@ karat
 jolts
 peons
 beers
-horny
 pales
 wreak
 lairs
@@ -3140,7 +3136,6 @@ dunce
 crony
 joist
 tunas
-boner
 malls
 parch
 avers
@@ -3351,7 +3346,6 @@ alpha
 overt
 kinda
 spelt
-prick
 nobly
 ephod
 audio
@@ -3509,7 +3503,6 @@ xenon
 hullo
 pique
 roger
-negro
 hadst
 gecko
 beget
@@ -3518,7 +3511,6 @@ aloes
 louis
 quint
 clunk
-raped
 salvo
 diode
 matey
@@ -3594,7 +3586,6 @@ thugs
 furor
 bloke
 runes
-bawdy
 cadre
 toxin
 annul
@@ -3899,8 +3890,6 @@ gibes
 aural
 tempi
 hooch
-rapes
-snuck
 harts
 techs
 emend
@@ -3932,7 +3921,6 @@ nanny
 trump
 fichu
 chomp
-homos
 purty
 maser
 woosh
@@ -4027,12 +4015,10 @@ pates
 blabs
 splay
 talus
-porno
 moola
 nixed
 kilos
 snide
-horsy
 gesso
 jaggy
 trove
@@ -4230,7 +4216,6 @@ sully
 sooth
 gelds
 ahold
-raper
 pager
 fixer
 infix
@@ -4262,7 +4247,6 @@ piton
 hussy
 torts
 disco
-whore
 boozy
 gibed
 vamps
@@ -4490,7 +4474,6 @@ naiad
 hider
 nuked
 fatso
-sluts
 obits
 narcs
 tyros
@@ -5046,9 +5029,7 @@ herby
 pryer
 oakum
 dinks
-titty
 sepoy
-penes
 fusee
 winey
 gimps
@@ -5064,7 +5045,6 @@ glads
 tacet
 bumph
 coyer
-honky
 gamer
 gooky
 waspy
@@ -5073,7 +5053,6 @@ bents
 varia
 djinn
 junco
-pubic
 wilco
 lazes
 idyls
@@ -5290,7 +5269,6 @@ amped
 shlep
 vinca
 yahoo
-vulva
 zooey
 dryad
 nixie
@@ -5305,12 +5283,10 @@ miaow
 gouts
 mynas
 mazer
-kikes
 oxeye
 stoup
 jujus
 debar
-pubes
 taels
 defun
 rands
@@ -5380,7 +5356,6 @@ weald
 sexed
 folic
 poxed
-cunts
 anile
 kiths
 becks
@@ -5454,12 +5429,10 @@ nitty
 techy
 lieth
 somas
-darky
 villi
 gluon
 janes
 cants
-farts
 socle
 jinns
 ruing
@@ -5567,7 +5540,6 @@ agley
 corgi
 dashy
 doser
-dildo
 apsos
 xored
 laker
@@ -5580,7 +5552,7 @@ demit
 whoso
 rials
 sawer
-spics
+bawdy
 bedim
 snugs
 fanin
@@ -5595,7 +5567,6 @@ rifer
 feral
 laded
 lased
-turds
 swede
 easts
 cozen
@@ -5624,7 +5595,6 @@ poler
 yecch
 fluky
 doeth
-twats
 cruds
 bebug
 bider
@@ -5734,11 +5704,9 @@ biggy
 laved
 baldy
 pubis
-gooks
 wonky
 stied
 hypos
-assed
 roble
 rumba
 biffy
