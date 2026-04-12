@@ -857,9 +857,9 @@ def frac_auto_hint(plaintext, crib, keyword):
         ct_letter = fmorse_map[trigram]
         pretty = ''.join(_SYMBOL_MAP[c] for c in trigram)
         # Exclude trigrams that are entirely padding (before or after the real crib)
-        actual_start = i - offset          # position in crib_stream
+        actual_start = i - offset
         actual_end   = actual_start + 3
-        if actual_end > 0 and actual_start < len(crib_stream):
+        if actual_start >= 0 and actual_end <= len(crib_stream):
             seen_pairs[ct_letter] = pretty
  
     parts = [f"{ct} = {tri}" for ct, tri in sorted(seen_pairs.items())]
@@ -922,9 +922,8 @@ def fractionatedFormatter(s, keyword, crib, value, hint_type, hint, bonus):
         )
     elif hint_type == "End Crib":
         # Count padding x's at the end of the full stream
-        full_stream = _frac_morse_stream(s)
-        remainder = len(full_stream) % 3
-        num_padding = (3 - remainder) % 3   # 0, 1, or 2
+        wb_stripped = wordBreaker(s).replace(" ", "")
+        num_padding = (3 - len(wb_stripped) % 3) % 3
         extra_plural = "" if num_padding == 1 else "s"
         result.append(
             f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
