@@ -462,17 +462,67 @@ def words_format_sentence(s):
     formatted_string += current_line.rstrip()
     return formatted_string
 
+def bacon_words_middle_hint(plaintext, crib, alph, encoded_sentence):
+    pt_clean = re.sub(r'[^a-zA-Z]', '', plaintext).upper()
+    crib_clean = re.sub(r'[^a-zA-Z]', '', crib).upper()
+
+    crib_start = pt_clean.find(crib_clean)
+    if crib_start == -1:
+        raise ValueError(f"Crib '{crib}' not found in plaintext '{pt_clean}'")
+
+    word_offset = crib_start * 5
+    crib_word_count = len(crib_clean) * 5
+    all_words = encoded_sentence.split()
+    crib_words = all_words[word_offset: word_offset + crib_word_count]
+    crib_words_str = " ".join(crib_words)
+    char_start = crib_start + 1
+    char_end = crib_start + len(crib_clean)
+
+    return crib_words_str, char_start, char_end
+
+
 def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s)
-    t = words(s,alph)
+    t = words(s, alph)
     result = []
-    bonus_text=""
+    bonus_text = ""
     if bonus:
-        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+        bonus_text = " \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+
     if hint_type == "Start Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that the plaintext starts with {crib}.{bonus_text}")
-    if hint_type == "End Crib":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Baconian}} cipher. You are told that the plaintext ends with {crib}.{bonus_text}")
+        result.append(
+            f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+            f"\\textbf{{Baconian}} cipher. You are told that the plaintext starts with "
+            f"\\textbf{{{crib}}}.{bonus_text}"
+        )
+    elif hint_type == "End Crib":
+        result.append(
+            f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+            f"\\textbf{{Baconian}} cipher. You are told that the plaintext ends with "
+            f"\\textbf{{{crib}}}.{bonus_text}"
+        )
+    elif hint_type == "Middle Crib":
+        try:
+            crib_words_str, char_start, char_end = bacon_words_middle_hint(s, crib, alph, t)
+            result.append(
+                f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+                f"\\textbf{{Baconian}} cipher. You are told that the plaintext contains "
+                f"\\textbf{{{crib}}} encoding to \\textbf{{{crib_words_str}}} "
+                f"(characters {char_start}--{char_end}).{bonus_text}"
+            )
+        except ValueError as e:
+            print(f"[bacon_words_middle_hint WARNING] {e}\n  Falling back to plain crib text.")
+            result.append(
+                f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+                f"\\textbf{{Baconian}} cipher. You are told that the plaintext contains "
+                f"\\textbf{{{crib}}}.{bonus_text}"
+            )
+    else:
+        result.append(
+            f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
+            f"\\textbf{{Baconian}} cipher.{bonus_text}"
+        )
+
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{t}\n")
@@ -490,7 +540,7 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
     result.append("\\end{flushleft}}")
     result.append("\\vfill")
     result.append("\\uplevel{\\hrulefill}")
-    
+
     return "\n".join(result)
 
 # caesar
