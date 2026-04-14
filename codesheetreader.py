@@ -470,11 +470,14 @@ def bacon_words_middle_hint(plaintext, crib, alph, encoded_sentence):
     if crib_start == -1:
         raise ValueError(f"Crib '{crib}' not found in plaintext '{pt_clean}'")
 
-    word_offset = crib_start * 5
-    crib_word_count = len(crib_clean) * 5
+    # Each plaintext letter → 1 output word (5 bits select one word)
+    word_offset = crib_start
+    crib_word_count = len(crib_clean)
+
     all_words = encoded_sentence.split()
     crib_words = all_words[word_offset: word_offset + crib_word_count]
     crib_words_str = " ".join(crib_words)
+
     char_start = crib_start + 1
     char_end = crib_start + len(crib_clean)
 
@@ -507,8 +510,8 @@ def baconianWordsFormatter(s, alph, crib, value, hint_type, bonus):
             result.append(
                 f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the "
                 f"\\textbf{{Baconian}} cipher. You are told that the plaintext contains "
-                f"\\textbf{{{crib}}} encoding to \\textbf{{{crib_words_str}}} "
-                f"(characters {char_start}--{char_end}).{bonus_text}"
+                f"\\textbf{{{crib}}}, encoding to \\textbf{{{crib_words_str}}}, "
+                f"or characters {char_start}-{char_end}.{bonus_text}"
             )
         except ValueError as e:
             print(f"[bacon_words_middle_hint WARNING] {e}\n  Falling back to plain crib text.")
