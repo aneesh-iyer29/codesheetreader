@@ -1110,6 +1110,115 @@ def hillCreater(s, keyword, value, bonus):
 
     return "\n".join(result)
 
+# ── Shared helpers ────────────────────────────────────────────────────────────
+
+def ordinal(n):
+    """Return ordinal string for n  (e.g. 1→'1st', 12→'12th', 23→'23rd')."""
+    if 11 <= (n % 100) <= 13:
+        return f"{n}th"
+    return f"{n}{['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]}"
+
+
+def nihilist_auto_hint(plaintext_clean, crib, key_clean, pk_clean):
+    """
+    Auto-generate the Middle Crib hint string for Nihilist.
+
+    Inputs are already cleaned (J→I, non-alpha stripped, upper-cased).
+    Returns e.g.:
+        "the 19th through 26th cipher units (72 68 27 76 45 55 28 74) decode to be ONTHEDEF"
+    Raises ValueError if the crib is not found in the plaintext.
+    """
+    crib_clean = re.sub(r'[^A-IK-Z]', '', crib.upper().replace('J', 'I'))
+
+    idx = plaintext_clean.find(crib_clean)
+    if idx == -1:
+        raise ValueError(
+            f"Nihilist auto-hint: crib '{crib_clean}' not found in plaintext '{plaintext_clean}'"
+        )
+
+    # Build the full encoded sequence (bs=1 so every unit is separate)
+    b = create_nihilist_alphabet(pk_clean).upper()
+    pk_dict = {b[i]: (i // 5 + 1) * 10 + (i % 5 + 1) for i in range(len(b))}
+
+    encoded_all = []
+    x = 0
+    for let in plaintext_clean:
+        encoded_all.append(pk_dict[let] + pk_dict[key_clean[x]])
+        x = (x + 1) % len(key_clean)
+
+    start_1 = idx + 1
+    end_1   = idx + len(crib_clean)
+    units   = encoded_all[idx: idx + len(crib_clean)]
+    units_str = ' '.join(str(u) for u in units)
+
+    return (
+        f"the {ordinal(start_1)} through {ordinal(end_1)} cipher units "
+        f"({units_str}) decode to be {crib_clean}"
+    )
+
+
+def porta_auto_hint(plaintext_clean, crib, keyword):
+    """
+    Auto-generate the Middle Crib hint string for Porta.
+
+    plaintext_clean: non-alpha stripped, upper-cased.
+    Returns e.g.:
+        "the 12th through 15th cipher characters (SPXW) decode to be CAFE"
+    Raises ValueError if the crib is not found in the plaintext.
+    """
+    crib_clean = re.sub(r'[^A-Z]', '', crib.upper())
+
+    idx = plaintext_clean.find(crib_clean)
+    if idx == -1:
+        raise ValueError(
+            f"Porta auto-hint: crib '{crib_clean}' not found in plaintext '{plaintext_clean}'"
+        )
+
+    # Encode character-by-character (bs=1) and strip spaces
+    encoded_full = porta_encoder(plaintext_clean, keyword, 1).replace(' ', '')
+
+    start_1   = idx + 1
+    end_1     = idx + len(crib_clean)
+    crib_ct   = encoded_full[idx: idx + len(crib_clean)]
+
+    return (
+        f"the {ordinal(start_1)} through {ordinal(end_1)} cipher characters "
+        f"({crib_ct}) decode to be {crib_clean}"
+    )
+
+
+def checkerboard_auto_hint(plaintext_clean, crib, hkey, vkey, pk):
+    """
+    Auto-generate the Middle Crib hint string for Checkerboard.
+
+    plaintext_clean: non-alpha stripped, J→I replaced, upper-cased.
+    Returns e.g.:
+        "characters 27-34 (HT EG TG ET EI OH HT ET) decode to EPISODES"
+    Raises ValueError if the crib is not found in the plaintext.
+    """
+    crib_clean = re.sub(r'[^A-IK-Z]', '', crib.upper().replace('J', 'I'))
+
+    idx = plaintext_clean.find(crib_clean)
+    if idx == -1:
+        raise ValueError(
+            f"Checkerboard auto-hint: crib '{crib_clean}' not found in plaintext '{plaintext_clean}'"
+        )
+
+    # Build the encoding lookup
+    alph  = checkerboard_alphabet(pk).upper()
+    hkey_u = hkey.upper()
+    vkey_u = vkey.upper()
+    pk_dict = {alph[j + i * 5]: vkey_u[i] + hkey_u[j]
+               for i in range(5) for j in range(5)}
+
+    start_1    = idx + 1
+    end_1      = idx + len(crib_clean)
+    crib_pairs = [pk_dict[let] for let in crib_clean]
+    pairs_str  = ' '.join(crib_pairs)
+
+    return f"characters {start_1}-{end_1} ({pairs_str}) decode to {crib_clean}"
+
+
 # nihilist
 
 def create_nihilist_alphabet(keyword):
@@ -1193,7 +1302,13 @@ def nihilistFormatter(s, key, pk, bs, value, type, hint_type, hint, bonus):
         elif hint_type == "End Crib":
             result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and the plaintext ends with {bs}.{bonus_text}")
         elif hint_type == 'Middle Crib':
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and {hint}.{bonus_text}")
+            # bs holds the raw crib text when type == "CRIB"
+            try:
+                auto_hint = nihilist_auto_hint(s, bs, keyf, pkf)
+            except ValueError as e:
+                print(f"[nihilist_auto_hint WARNING] {e}\n  Falling back to manual hint.")
+                auto_hint = hint
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and {auto_hint}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{v}\n")
@@ -1285,7 +1400,12 @@ def porta_formatter(s, keyword, bs, value, type, hint_type, hint, bonus):
         if hint_type == "Start Crib":
             result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told the plaintext begins with {crib}.{bonus_text}")
         if hint_type == "Middle Crib":
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told {hint}.{bonus_text}")
+            try:
+                auto_hint = porta_auto_hint(s, crib, keyword)
+            except ValueError as e:
+                print(f"[porta_auto_hint WARNING] {e}\n  Falling back to manual hint.")
+                auto_hint = hint
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told {auto_hint}.{bonus_text}")
         if hint_type == "End Crib":
             result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Porta}} cipher. You are told the plaintext ends with {crib}.{bonus_text}")
     result.append("\n\\Large{")
@@ -1641,7 +1761,12 @@ def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
     elif type == "End Crib":
         c = f"the plaintext ends with \\textbf{{{crib}}}"
     elif type == "Middle Crib":
-        c = f"{mid}"
+        try:
+            # crib holds the raw crib text (same column as Start/End Crib)
+            c = checkerboard_auto_hint(s, crib, hkey, vkey, pk)
+        except ValueError as e:
+            print(f"[checkerboard_auto_hint WARNING] {e}\n  Falling back to manual hint.")
+            c = mid
     result = []
     bonus_text=""
     if bonus:
