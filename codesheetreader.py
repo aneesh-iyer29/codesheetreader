@@ -1321,7 +1321,7 @@ def nihilistFormatter(s, key, pk, bs, value, type, hint_type, hint, bonus):
             except ValueError as e:
                 print(f"[nihilist_auto_hint WARNING] {e}\n  Falling back to manual hint.")
                 auto_hint = hint
-            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told that the keyword used to encode it is between 3 and 7 letters long and {auto_hint}.{bonus_text}")
+            result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Nihilist Substitution}} cipher. You are told {auto_hint}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{v}\n")
