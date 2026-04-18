@@ -1770,14 +1770,15 @@ def checkerboarddecode(s, hkey, vkey, pk, bs, value, bonus):
     return "\n".join(result)
 
 def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
-    s = re.sub(r'[^a-zA-Z]', '', s).upper()
-    s = s.upper().replace("J","I")
+    s = re.sub(r'[^a-zA-Z]', '', s).upper().replace("J","I")
     pkf = pk.upper().replace("J","I")
     alph = checkerboard_alphabet(pk)
-    v = checkerboard_encoder(hkey,vkey,alph,s,1)
+    v = checkerboard_encoder(hkey, vkey, alph, s, 1)
 
-    # Auto-detect whether crib is at start, middle, or end
     crib_clean = re.sub(r'[^A-IK-Z]', '', crib.upper().replace('J', 'I'))
+
+    c = f"the plaintext begins with \\textbf{{{crib_clean}}}"
+
     try:
         type = detect_hint_type(s, crib_clean)
     except ValueError as e:
@@ -1793,10 +1794,11 @@ def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
         except ValueError as e:
             print(f"[checkerboard_auto_hint WARNING] {e}\n  Falling back to manual hint.")
             c = mid
+
     result = []
-    bonus_text=""
+    bonus_text = ""
     if bonus:
-        bonus_text=" \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
+        bonus_text = " \\emph{$\\bigstar$\\textbf{This question is a special bonus question.}}"
     result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Checkerboard}} cipher. You are told that {c}.{bonus_text}")
     result.append("\n \\Large{")
     result.append("\\begin{verbatim}")
