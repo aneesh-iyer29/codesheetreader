@@ -1934,7 +1934,8 @@ def sheet_writer(df, output_file, key_file):
             result += xeno_creator(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Value"], "Aristocrat", df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], extract)
             row_counter+=1
         elif df.loc[row_counter, "Cipher"] == "AFFINE":
-            result += affine_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], df.loc[row_counter, "Hint"], bonus)
+            z = df.loc[row_counter, "Hint"] if pd.notna(df.loc[row_counter, "Hint"]) else df.loc[row_counter, "Key4"]
+            result += affine_formatter(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Value"], df.loc[row_counter, "Type"], z, bonus)
             row_counter +=1
         elif df.loc[row_counter, "Cipher"] == "CHECKERBOARD":
             if df.loc[row_counter, "Type"] == "DECODE":
