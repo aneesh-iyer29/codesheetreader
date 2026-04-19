@@ -1663,8 +1663,11 @@ def affine_formatter(s, a, b, bs, value, type, hint, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
     if type == "CRIB":
         htext = affine_encoder(hint, a, b, bs)
-        nhint = f"ciphertext {htext} decodes to {hint}."
-        bs = 5
+        if len(hint) == 2:
+            nhint = f"ciphertext {htext} decodes to {hint}."
+            bs = 5
+        else:
+            nhint = hint
     encoded_text = affine_encoder(s, a,b, bs)
     formatted_string = affine_format_sentence(encoded_text)
     bonus_text=""
