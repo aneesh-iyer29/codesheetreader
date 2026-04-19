@@ -1662,6 +1662,8 @@ def affine_format_sentence(s):
 def affine_formatter(s, a, b, bs, value, type, hint, bonus):
     s = re.sub(r'[^a-zA-Z]', '', s).upper()
     if type == "CRIB":
+        htext = affine_encoder(hint, a, b, bs)
+        nhint = f"ciphertext {htext} decodes to {hint}."
         bs = 5
     encoded_text = affine_encoder(s, a,b, bs)
     formatted_string = affine_format_sentence(encoded_text)
@@ -1672,7 +1674,7 @@ def affine_formatter(s, a, b, bs, value, type, hint, bonus):
     if type == "DECODE":
         result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher with $\\textrm{{a}}={a}$ and $\\textrm{{b}}={b}$.{bonus_text}")
     elif type == "CRIB":
-        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher. You are told that {hint}.{bonus_text}")
+        result.append(f"\\normalsize \\question[{value}] Decode this phrase that was encoded using the \\textbf{{Affine}} cipher. You are told that {nhint}.{bonus_text}")
     result.append("\n\\Large{")
     result.append("\\begin{verbatim}")
     result.append(f"{formatted_string}\n")
