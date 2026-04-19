@@ -1775,7 +1775,10 @@ def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
     alph = checkerboard_alphabet(pk)
     v = checkerboard_encoder(hkey, vkey, alph, s, 1)
 
-    crib_clean = re.sub(r'[^A-IK-Z]', '', crib.upper().replace('J', 'I'))
+    # `type` parameter carries the raw crib text from the spreadsheet;
+    # save it before detect_hint_type overwrites the local `type` variable.
+    crib_raw = type
+    crib_clean = re.sub(r'[^A-IK-Z]', '', crib_raw.upper().replace('J', 'I'))
 
     c = f"the plaintext begins with \\textbf{{{crib_clean}}}"
 
@@ -1790,7 +1793,7 @@ def checkerboardcrib(s, hkey, vkey, pk, crib, type, mid, value, bonus):
         c = f"the plaintext ends with \\textbf{{{crib_clean}}}"
     elif type == "Middle Crib":
         try:
-            c = checkerboard_auto_hint(s, crib, hkey, vkey, pk)
+            c = checkerboard_auto_hint(s, crib_raw, hkey, vkey, pk)
         except ValueError as e:
             print(f"[checkerboard_auto_hint WARNING] {e}\n  Falling back to manual hint.")
             c = mid
@@ -1938,7 +1941,8 @@ def sheet_writer(df, output_file, key_file):
                 result = checkerboarddecode(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], 5, df.loc[row_counter, "Value"], bonus)
                 row_counter +=1
             elif df.loc[row_counter, "Type"] == "CRIB":
-                result = checkerboardcrib(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Type of Hint"], df.loc[row_counter, "Hint"], df.loc[row_counter, "Value"], bonus)
+                z = df.loc[row_counter, "Type of Hint"] if pd.notna(df.loc[row_counter, "Type of Hint"]) else df.loc[row_counter, "Key4"]
+                result = checkerboardcrib(df.loc[row_counter, "Plaintext"], df.loc[row_counter, "Key1"], df.loc[row_counter, "Key2"], df.loc[row_counter, "Key3"], df.loc[row_counter, "Hint"], z, df.loc[row_counter, "Hint"], df.loc[row_counter, "Value"], bonus)
                 row_counter +=1
         # sheet writer
         write_file(result, output_file)
