@@ -1,4 +1,7 @@
 # Code Sheet Reader
+
+# Note: Functionality from this repository has been integrated directly to [Toebes](https://toebes.com/codebusters/index.html), therefore this will **no longer be maintained**.
+
 This program converts Codebusters Questions from a Google Sheets Masterdoc to Latex, allowing for easy collaboration and a professional, formatted look. Advantages include the delocalization of the formatted test document.
 
 To use, make a copy of this sheet: https://docs.google.com/spreadsheets/d/1XnOdkZioY0s10qt-8lDSdHjRs0mzWC2tmbFxVboDeoA/edit?usp=drive_web&ouid=114000520835446303801 and fill it out according to the instructions
